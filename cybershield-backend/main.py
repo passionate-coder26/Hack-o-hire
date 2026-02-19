@@ -7,7 +7,6 @@ import requests
 
 app = FastAPI()
 
-# This allows your React frontend to talk to this Python server
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
@@ -17,16 +16,13 @@ app.add_middleware(
 )
 
 
-# --- MODELS ---
 class PlaybookFeedback(BaseModel):
     playbook_id: str
     user_suggestion: str
 
 
-# --- HELPER: Real-time Threat Intel ---
 def get_ip_intel(ip: str):
     try:
-        # Using a real free API for the demo!
         response = requests.get(f"http://ip-api.com/json/{ip}").json()
         return {
             "location": f"{response.get('city')}, {response.get('country')}",
@@ -37,7 +33,6 @@ def get_ip_intel(ip: str):
         return {"location": "Unknown", "isp": "Unknown", "proxy": False}
     
 
-# 1. Endpoint for the Live Threat Feed
 @app.get("/api/threats/live")
 def get_live_threats():
     return [
@@ -61,15 +56,12 @@ def get_live_threats():
         }
     ]
 
-# 2. Endpoint to simulate the AI generating a playbook
 @app.post("/api/playbook/generate/{threat_id}")
 async def generate_playbook(threat_id: str):
-    # 1. Simulate "AI Reasoning" time
     await asyncio.sleep(2)
     
-    # 2. Mock external Intel Lookup
-    attacker_ip = "192.168.1.1" # In a real app, this comes from logs
-    intel = get_ip_intel("8.8.8.8") # Using Google IP for demo stability
+    attacker_ip = "192.168.1.1"
+    intel = get_ip_intel("8.8.8.8")
     
     base_risk = 85
     if intel.get("proxy"):
@@ -90,7 +82,6 @@ async def generate_playbook(threat_id: str):
 
 @app.post("/api/playbook/feedback")
 async def process_feedback(feedback: PlaybookFeedback):
-    # This simulates a "Human-in-the-loop" interaction
     time.sleep(1.5)
     return {
         "status": "success",
