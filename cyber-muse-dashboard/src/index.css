@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    --background: 220 20% 7%;
+    --foreground: 200 20% 90%;
+
+    --card: 220 18% 10%;
+    --card-foreground: 200 20% 90%;
+
+    --popover: 220 18% 10%;
+    --popover-foreground: 200 20% 90%;
+
+    --primary: 187 100% 45%;
+    --primary-foreground: 220 20% 7%;
+
+    --secondary: 220 15% 16%;
+    --secondary-foreground: 200 20% 80%;
+
+    --muted: 220 15% 14%;
+    --muted-foreground: 215 15% 50%;
+
+    --accent: 45 100% 55%;
+    --accent-foreground: 220 20% 7%;
+
+    --destructive: 0 85% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 18%;
+    --input: 220 15% 18%;
+    --ring: 187 100% 45%;
+
+    --radius: 0.5rem;
+
+    --success: 150 80% 45%;
+    --success-foreground: 220 20% 7%;
+    --warning: 45 100% 55%;
+    --warning-foreground: 220 20% 7%;
+    --critical: 0 85% 55%;
+    --critical-foreground: 0 0% 100%;
+
+    --sidebar-background: 220 18% 8%;
+    --sidebar-foreground: 200 20% 80%;
+    --sidebar-primary: 187 100% 45%;
+    --sidebar-primary-foreground: 220 20% 7%;
+    --sidebar-accent: 220 15% 14%;
+    --sidebar-accent-foreground: 200 20% 80%;
+    --sidebar-border: 220 15% 18%;
+    --sidebar-ring: 187 100% 45%;
+
+    --glow-primary: 0 0 20px hsl(187 100% 45% / 0.3);
+    --glow-critical: 0 0 20px hsl(0 85% 55% / 0.3);
+    --glow-warning: 0 0 20px hsl(45 100% 55% / 0.3);
+    --glow-success: 0 0 20px hsl(150 80% 45% / 0.3);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}
+
+@layer utilities {
+  .font-mono-cyber {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .glow-primary {
+    box-shadow: var(--glow-primary);
+  }
+
+  .glow-critical {
+    box-shadow: var(--glow-critical);
+  }
+
+  .glow-warning {
+    box-shadow: var(--glow-warning);
+  }
+
+  .glow-success {
+    box-shadow: var(--glow-success);
+  }
+
+  .text-glow-primary {
+    text-shadow: 0 0 10px hsl(187 100% 45% / 0.5);
+  }
+
+  .text-glow-critical {
+    text-shadow: 0 0 10px hsl(0 85% 55% / 0.5);
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .cyber-grid-bg {
+    background-image:
+      linear-gradient(hsl(220 15% 18% / 0.5) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(220 15% 18% / 0.5) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .scanline {
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      hsl(187 100% 45% / 0.03) 50%,
+      transparent 100%
+    );
+    background-size: 100% 4px;
+  }
+}
