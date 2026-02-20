@@ -123,13 +123,8 @@ export function IncidentPlaybook() {
   }, [terminalLogs]);
 
   useEffect(() => {
-    // If the simulation just stopped and the score is at the 'pumped' level
     if (!isSimulating && riskScore > 45) {
       setTerminalLogs(prev => [...prev, "THREAT_STREAM_TERMINATED: Cleaning up vectors...", "Resetting Risk baseline to 45%"]);
-
-      // Note: If your context doesn't have a 'setRiskScore' function exported, 
-      // you'll need to ensure your DashboardContext handles the reset logic 
-      // when isSimulating is toggled to false.
     }
   }, [isSimulating, riskScore]);
 
@@ -143,15 +138,13 @@ export function IncidentPlaybook() {
     const generateAIPlaybook = async () => {
       try {
         setTerminalLogs(prev => [...prev, "POST /api/playbook/generate/evt_001..."]);
-        // Calling the FastAPI POST endpoint. We pass 'evt_001' as the trigger.
-        const response = await fetch("http://127.0.0.1:8000/api/playbook/generate/evt_001", {
+        const response = await fetch("https://cybersite-anlx.onrender.com/api/playbook/generate/evt_001", {
           method: "POST"
         });
 
         if (!response.ok) throw new Error("Failed to generate playbook");
         const data = await response.json();
 
-        // Simulate terminal typing out the logic
         setTerminalLogs(prev => [...prev, "Checking IP Intelligence..."]);
         setTimeout(() => {
           setTerminalLogs(prev => [...prev, `Source Verified: ${data.assessment.split('.')[0]}`]);
@@ -159,7 +152,6 @@ export function IncidentPlaybook() {
           setTerminalLogs(prev => [...prev, "SUCCESS: Playbook generated via CyberShield Agent."]);
         }, 1000);
 
-        // Map the Python response into the exact format your UI expects
         const livePlaybook: Playbook = {
           id: data.playbook_id,
           riskScore: data.risk_score,
@@ -171,15 +163,14 @@ export function IncidentPlaybook() {
           steps: data.steps.map((s: any) => ({
             id: s.step,
             action: s.title,
-            detail: "Automated remediation task handled by CyberShield LangGraph Agent.", // Adding a generic detail string
+            detail: "Automated remediation task handled by CyberShield LangGraph Agent.", 
             status: s.status.toLowerCase() as "pending" | "in-progress" | "complete",
             eta: s.eta
           }))
         };
 
-        // Put the LIVE playbook at the top, and keep a couple of the hardcoded ones below it for the demo
         setPlaybooks([livePlaybook, initialPlaybooks[1], initialPlaybooks[2]]);
-        setExpanded(livePlaybook.id); // Auto-expand the live one
+        setExpanded(livePlaybook.id); 
         setIsGenerating(false);
 
       } catch (error) {
@@ -200,7 +191,6 @@ export function IncidentPlaybook() {
     const pendingSteps = pb.steps.filter((s) => s.status !== "complete");
 
     pendingSteps.forEach((step, i) => {
-      // Set to in-progress
       setTimeout(() => {
         setPlaybooks((prev) =>
           prev.map((p) =>
@@ -211,7 +201,6 @@ export function IncidentPlaybook() {
         );
       }, i * 1200);
 
-      // Set to complete
       setTimeout(() => {
         setPlaybooks((prev) =>
           prev.map((p) =>
@@ -233,7 +222,7 @@ export function IncidentPlaybook() {
     if (!suggestion) return;
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/playbook/feedback", {
+      const response = await fetch("https://cybersite-anlx.onrender.com/api/playbook/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ playbook_id: pbId, user_suggestion: suggestion })
@@ -252,26 +241,22 @@ export function IncidentPlaybook() {
   const handleDownload = () => {
     const doc = new jsPDF();
     const now = new Date().toISOString();
-    const activePb = playbooks[0]; // Usually the AI-generated one
+    const activePb = playbooks[0]; 
 
-    // 1. ADD WATERMARK (Semi-transparent background text)
-    doc.setTextColor(220, 220, 220); // Very light grey
+    doc.setTextColor(220, 220, 220); 
     doc.setFontSize(60);
     doc.setFont("helvetica", "bold");
-    // Save state, rotate for the watermark, then restore
     doc.saveGraphicsState();
     doc.setGState(new (doc as any).GState({ opacity: 0.2 }));
     doc.text("INTERNAL USE ONLY", 40, 190, { angle: 45 });
     doc.restoreGraphicsState();
 
-    // Header - Styling it to look like a formal SOC Report
     doc.setFontSize(18);
-    doc.setTextColor(0, 150, 255); // CyberShield Blue
+    doc.setTextColor(0, 150, 255); 
     doc.text("CYBERSHIELD SOC: INCIDENT AUDIT TRAIL", 14, 22);
 
-    // Highlighted Risk Score in the Header
     doc.setFontSize(11);
-    doc.setTextColor(220, 38, 38); // Critical Red
+    doc.setTextColor(220, 38, 38); 
     doc.setFont("helvetica", "bold");
     doc.text(`THREAT PROPAGATION RISK: ${activePb.riskScore || '88'}%`, 14, 32);
 
@@ -281,7 +266,6 @@ export function IncidentPlaybook() {
     doc.text(`Incident ID: ${activePb.id}`, 14, 46);
     doc.text(`Status: CRYPTOGRAPHICALLY SIGNED / VERIFIED`, 14, 52);
 
-    // Summary Section
     doc.setFontSize(12);
     doc.setTextColor(0);
     doc.text("AI Assessment Summary", 14, 65);
@@ -291,7 +275,6 @@ export function IncidentPlaybook() {
     const summaryLineCount = splitSummary.length;
     const tableStartY = 72 + (summaryLineCount * 5) + 10;
 
-    // Mitigation Steps Table
     autoTable(doc, {
       startY: tableStartY,
       head: [['Step', 'Action', 'Status', 'ETA']],
@@ -300,7 +283,6 @@ export function IncidentPlaybook() {
       theme: 'grid'
     });
 
-    // Terminal Logs Section (The "Proof" of activity)
     const finalY = (doc as any).lastAutoTable.finalY || 160;
     doc.setFontSize(11);
     doc.setTextColor(0, 150, 255);
@@ -308,10 +290,9 @@ export function IncidentPlaybook() {
     doc.setFont("courier", "normal");
     doc.setFontSize(7);
     doc.setTextColor(80);
-    const logs = terminalLogs.slice(-12).join('\n'); // Last 12 logs
+    const logs = terminalLogs.slice(-12).join('\n'); 
     doc.text(logs, 14, finalY + 18);
 
-    // 6. DIGITAL SIGNATURE STAMP (Bottom Right)
     const footerY = 255;
     doc.setDrawColor(0, 150, 255);
     doc.setLineWidth(0.5);
@@ -321,21 +302,19 @@ export function IncidentPlaybook() {
     doc.text("DIGITALLY SIGNED BY:", 137, footerY + 5);
     doc.setFont("courier", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(16, 185, 129); // Success Green
+    doc.setTextColor(16, 185, 129); 
     doc.text("CYBERSHIELD_AGENT_v1", 137, footerY + 13);
     doc.setFontSize(6);
     doc.setTextColor(100);
     const mockHash = Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
     doc.text(`SHA-256: ${mockHash.substring(0, 24)}...`, 137, footerY + 20);
 
-    // Download the file
     doc.save(`CyberShield_Audit_${activePb.id}.pdf`);
   };
 
   return (
     <TooltipProvider>
       <div className="rounded-lg border border-border bg-card p-4 h-full flex flex-col">
-        {/* 1. HEADER SECTION */}
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-sm font-mono uppercase tracking-wider text-foreground flex items-center gap-2">
@@ -348,7 +327,6 @@ export function IncidentPlaybook() {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* GENERATING / AI-GENERATED BADGE */}
             {isGenerating ? (
               <span className="flex items-center gap-1.5 text-[10px] font-mono px-2 py-0.5 rounded bg-warning/20 text-warning animate-pulse">
                 <Loader2 className="h-3 w-3 animate-spin" /> GENERATING...
@@ -359,7 +337,6 @@ export function IncidentPlaybook() {
               </span>
             )}
 
-            {/* DOWNLOAD BUTTON */}
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -379,7 +356,6 @@ export function IncidentPlaybook() {
           </div>
         </div>
 
-        {/* 2. AGGREGATE RISK GAUGE */}
         <div className="mb-6">
           <div className="flex justify-between items-end mb-1.5">
             <span className="text-[10px] font-mono text-muted-foreground uppercase">Aggregate Risk Score</span>
@@ -397,7 +373,6 @@ export function IncidentPlaybook() {
           </div>
         </div>
 
-        {/* 3. AI "THINKING" OVERLAY */}
         {isSimulating && (
           <div className="flex items-center gap-2 p-2 mb-4 bg-primary/5 border border-primary/20 rounded-md animate-pulse">
             <Loader2 className="h-3 w-3 animate-spin text-primary" />
@@ -407,7 +382,6 @@ export function IncidentPlaybook() {
           </div>
         )}
 
-        {/* 4. PLAYBOOKS LIST */}
         <div className="flex-1 overflow-y-auto space-y-3 pr-1">
           {playbooks.map((pb) => (
             <div
@@ -440,7 +414,6 @@ export function IncidentPlaybook() {
 
               {expanded === pb.id && (
                 <div className="px-3 pb-3 space-y-3 animate-in fade-in slide-in-from-top-1">
-                  {/* AI ASSESSMENT BLOCK */}
                   <div className="rounded bg-secondary/50 p-3 border-l-2 border-primary">
                     <div className="flex items-center justify-between mb-1.5">
                       <div className="flex items-center gap-1.5">
@@ -461,7 +434,6 @@ export function IncidentPlaybook() {
                     </p>
                   </div>
 
-                  {/* INDIVIDUAL PLAYBOOK RISK SCORE GAUGE */}
                   <div className="flex items-center gap-4 px-1 py-2 border-y border-border/50">
                     <div className="flex-1">
                       <div className="flex justify-between text-[10px] font-mono mb-1">
@@ -477,7 +449,6 @@ export function IncidentPlaybook() {
                     </div>
                   </div>
 
-                  {/* STEPS LISTING */}
                   <div className="space-y-2">
                     {pb.steps.map((step) => (
                       <div
@@ -509,7 +480,6 @@ export function IncidentPlaybook() {
                     ))}
                   </div>
 
-                  {/* ACTION BUTTONS */}
                   <div className="flex gap-2 pt-1">
                     <Button
                       onClick={() => handleExecute(pb.id)}
@@ -539,7 +509,6 @@ export function IncidentPlaybook() {
           ))}
         </div>
 
-        {/* 5. POLISHED AI AGENT TERMINAL */}
         <div className="mt-4 rounded border border-border bg-black/80 p-3 font-mono text-[10px] terminal-glow relative overflow-hidden">
           <div className="absolute inset-0 pointer-events-none opacity-5 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
 

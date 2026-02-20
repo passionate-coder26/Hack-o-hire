@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { AlertTriangle, ShieldAlert, Wifi, Lock, Globe, Server } from "lucide-react";
 import { ExplainableAIDetails } from "./ExplainableAIDetails";
-import { Button } from "@/components/ui/button"; // Ensure you have this path
+import { Button } from "@/components/ui/button"; 
 import { Zap, Loader2, Play } from "lucide-react";
-import { useDashboard } from "../dashboard/DashboardContext"; // Adjust path as needed
+import { useDashboard } from "../dashboard/DashboardContext"; 
 
 interface ThreatEvent {
   id: string;
@@ -113,7 +113,7 @@ export function ThreatFeed() {
   const { triggerUpdate } = useDashboard();
 
   const injectManualThreat = useCallback(() => {
-    const newThreat = generateThreat(); // Uses your existing generator
+    const newThreat = generateThreat(); 
     setThreats(prev => [newThreat, ...prev]);
     triggerUpdate(newThreat.severity === 'critical');
   }, [triggerUpdate]);
@@ -142,7 +142,7 @@ export function ThreatFeed() {
       if (isSimulating) return;
 
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/threats/live");
+        const response = await fetch("https://cybersite-anlx.onrender.com/api/threats/live");
         if (!response.ok) throw new Error("Network response was not ok");
         const data = await response.json();
 
